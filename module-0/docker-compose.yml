@@ -1,0 +1,48 @@
+version: "3.9"
+
+networks:
+  lab-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+services:
+  attacker:
+    image: kalilinux/kali-rolling:latest
+    container_name: attacker
+    hostname: attacker
+    networks:
+      lab-net:
+        ipv4_address: 172.30.0.10
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    tty: true
+    stdin_open: true
+    volumes:
+      - ../shared:/shared
+      - ./workspace:/workspace
+      - ./attacker-entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+
+  victim-linux:
+    image: vulnerables/web-dvwa:latest
+    container_name: victim-linux
+    hostname: victim-linux
+    networks:
+      lab-net:
+        ipv4_address: 172.30.0.20
+    ports:
+      - "127.0.0.1:8080:80"
+
+  victim-ssh:
+    build:
+      context: ./victim-ssh
+    container_name: victim-ssh
+    hostname: victim-ssh
+    networks:
+      lab-net:
+        ipv4_address: 172.30.0.30
+    ports:
+      - "127.0.0.1:2222:22"
