@@ -54,93 +54,13 @@ cd ~/hacking-masterclass
 
 ### Lab Hub: o "Kali Box" do curso
 
-Em vez de instalar 200 ferramentas no host, você vai sempre atacar a partir de um contêiner Kali pré-configurado. Crie o arquivo abaixo:
+Em vez de instalar 200 ferramentas no host, você vai sempre atacar a partir de um contêiner Kali pré-configurado. O arquivo de composição já está pronto no repositório:
 
-**`~/hacking-masterclass/module-0-fundamentals/docker-compose.yml`**
+📄 **[docker-compose.yml](docker-compose.yml)**
 
-```yaml
-version: "3.9"
+O Dockerfile do alvo SSH (para revisão de Bash + scanning) também já está no repositório:
 
-networks:
-  lab-net:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.30.0.0/24
-
-services:
-  attacker:
-    image: kalilinux/kali-rolling:latest
-    container_name: attacker
-    hostname: attacker
-    networks:
-      lab-net:
-        ipv4_address: 172.30.0.10
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    tty: true
-    stdin_open: true
-    volumes:
-      - ../shared:/shared
-      - ./workspace:/workspace
-    command: >
-      bash -c "
-      apt update &&
-      apt install -y --no-install-recommends
-        nmap ncat netcat-openbsd net-tools iputils-ping dnsutils
-        curl wget python3 python3-pip python3-venv
-        git vim tmux jq tcpdump tshark
-        hashid hash-identifier john hashcat
-        gobuster ffuf nikto sqlmap
-        seclists wordlists
-        openssh-client openssl
-        responder bloodhound impacket-scripts
-      && tail -f /dev/null
-      "
-
-  victim-linux:
-    image: vulnerables/web-dvwa:latest
-    container_name: victim-linux
-    hostname: victim-linux
-    networks:
-      lab-net:
-        ipv4_address: 172.30.0.20
-    ports:
-      - "127.0.0.1:8080:80"
-
-  victim-ssh:
-    build:
-      context: ./victim-ssh
-    container_name: victim-ssh
-    hostname: victim-ssh
-    networks:
-      lab-net:
-        ipv4_address: 172.30.0.30
-    ports:
-      - "127.0.0.1:2222:22"
-```
-
-E o Dockerfile do alvo SSH (para revisão de Bash + scanning):
-
-**`~/hacking-masterclass/module-0-fundamentals/victim-ssh/Dockerfile`**
-
-```dockerfile
-FROM debian:12-slim
-
-RUN apt update && apt install -y openssh-server sudo && \
-    mkdir /var/run/sshd && \
-    useradd -m -s /bin/bash alice && echo "alice:summer2025" | chpasswd && \
-    useradd -m -s /bin/bash bob && echo "bob:P@ssw0rd!" | chpasswd && \
-    useradd -m -s /bin/bash carol && echo "carol:carolina123" | chpasswd && \
-    echo "root:toor" | chpasswd && \
-    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
-    echo 'flag{m0dulo_zer0_ssh_brute_was_easy}' > /home/alice/.flag && \
-    chown alice:alice /home/alice/.flag && chmod 600 /home/alice/.flag
-
-EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]
-```
+📄 **[victim-ssh/Dockerfile](victim-ssh/Dockerfile)**
 
 ### Comandos para subir e operar
 
