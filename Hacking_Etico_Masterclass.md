@@ -1,7 +1,7 @@
 # Hacking Ético Masterclass: Do Básico ao Avançado com Labs em Docker
 
 > **Curso 100% prático, hands-on, com laboratórios reproduzíveis em Docker.**
-> Autor: Instrutor Sênior em Cybersecurity & Red Team
+> Autor: Yuri Correa
 > Versão: 1.0 — 2026
 > Idioma: Português (Brasil)
 
@@ -24,7 +24,7 @@ Atacar sistemas sem autorização é crime na maioria das jurisdições (no Bras
 - Metodologia: Cyber Kill Chain + MITRE ATT&CK
 - Como abordar os desafios CTF e os write-ups
 
-### Módulo 0 — Revisão Prática dos Fundamentos *(1 semana)*
+### Módulo 0 — Revisão Prática dos Fundamentos
 - 0.1 Setup do ambiente Docker para o curso inteiro
 - 0.2 Revisão prática de Linux (privilégios, processos, networking)
 - 0.3 Revisão prática de redes (TCP/IP, DNS, HTTP, TLS)
@@ -32,61 +32,61 @@ Atacar sistemas sem autorização é crime na maioria das jurisdições (no Bras
 - 0.5 Revisão prática de criptografia (hashes, simétrica, assimétrica)
 - 0.6 Mini-CTF de aquecimento
 
-### Módulo 1 — Network Hacking & Pivoting *(2 semanas)*
+### Módulo 1 — Network Hacking & Pivoting
 - Reconhecimento ativo/passivo, scanning avançado com Nmap NSE
 - ARP spoofing, DNS spoofing, NTLM Relay, mitm6
 - Tunneling: SSH, Chisel, Ligolo-ng, Sliver
 - Pivoting multi-hop e port forwarding dinâmico
 
-### Módulo 2 — Web Application Hacking *(3 semanas)*
+### Módulo 2 — Web Application Hacking
 - OWASP Top 10 (2021) completo com labs próprios
 - API Security (REST, GraphQL, JWT)
 - SSTI, SSRF, Prototype Pollution, Race Conditions
 - Bypass de WAF e técnicas modernas (HTTP smuggling, cache deception)
 
-### Módulo 3 — Wireless & Mobile Hacking *(2 semanas)*
+### Módulo 3 — Wireless & Mobile Hacking
 - Wi-Fi WPA2/WPA3, ataques a Enterprise (EAP), Evil Twin
 - Bluetooth/BLE sniffing e replay
 - Android: APK reverse, Frida, Objection
 - iOS: análise estática + dynamic instrumentation
 
-### Módulo 4 — Cloud Security *(2 semanas)*
+### Módulo 4 — Cloud Security
 - AWS: IAM privilege escalation, S3, Lambda, Metadata Service
 - Azure: AAD, Managed Identities, Storage
 - GCP: Service Accounts, GKE
 - Container Security: Docker escape, Kubernetes attacks
 
-### Módulo 5 — Social Engineering & OSINT *(1 semana)*
+### Módulo 5 — Social Engineering & OSINT
 - OSINT digital e físico (Maltego, SpiderFoot, theHarvester)
 - Phishing avançado com GoPhish + Evilginx2
 - Vishing, pretexting e ataques físicos (badge clone, USB drops)
 
-### Módulo 6 — Reverse Engineering & Malware Analysis *(2 semanas)*
+### Módulo 6 — Reverse Engineering & Malware Analysis
 - Análise estática e dinâmica (Ghidra, Radare2, x64dbg)
 - Unpacking, anti-debug bypass
 - Malware Triage, YARA rules
 - Rootkits e Command & Control (C2) com Mythic/Sliver
 
-### Módulo 7 — Exploit Development *(3 semanas)*
+### Módulo 7 — Exploit Development
 - Buffer overflow stack-based (Linux/Windows)
 - ASLR/DEP/Stack Canaries bypass
 - ROP, JOP, SROP
 - Heap exploitation (House of Force, tcache poisoning)
 - Use-After-Free e fuzzing com AFL++
 
-### Módulo 8 — IoT & Hardware Hacking *(2 semanas)*
+### Módulo 8 — IoT & Hardware Hacking
 - Firmware extraction e análise (binwalk, firmadyne)
 - UART, JTAG, SPI flash dumping
 - Radio (SDR) básico — GQRX, GNU Radio
 - Side-channel attacks introdutório
 
-### Módulo 9 — Digital Forensics & Incident Response *(2 semanas)*
+### Módulo 9 — Digital Forensics & Incident Response
 - Memory forensics (Volatility 3)
 - Disk forensics (Autopsy, Sleuthkit)
 - Log analysis e timeline
 - EDR evasion + Threat Hunting com Sysmon/Sigma
 
-### Módulo 10 — AI/LLM Security & Red Teaming *(2 semanas)* 🔥 *Nova área*
+### Módulo 10 — AI/LLM Security & Red Teaming 🔥 *Nova área*
 - Prompt Injection direto e indireto
 - Jailbreaking de LLMs (DAN, role-play, encoding)
 - Prompt Leaking + Data Exfiltration
@@ -96,7 +96,7 @@ Atacar sistemas sem autorização é crime na maioria das jurisdições (no Bras
 - Model extraction e Adversarial attacks
 - Defesas: guardrails, input/output filtering, isolamento
 
-### Capstone — Projeto Final Red Team *(2 semanas)*
+### Capstone — Projeto Final Red Team
 - Cenário corporativo fictício multi-camada
 - Stack completo em Docker Compose (web, AD-like, cloud, AI)
 - Relatório profissional padrão OSCP/PTES
@@ -178,7 +178,7 @@ Pronto? Bora botar a mão na massa.
 
 # 🧱 MÓDULO 0 — Revisão Prática dos Fundamentos
 
-> **Duração:** 1 semana | **Carga:** ~12h | **Pré-req:** os listados na introdução
+> **Pré-req:** os listados na introdução
 
 ## 🎯 Objetivos de Aprendizado
 
@@ -649,6 +649,3 @@ cat ~/.flag
 Quando todos os itens estiverem marcados, você está pronto para o **Módulo 1 — Network Hacking & Pivoting**.
 
 ---
-
-> **Aguardando sua confirmação para gerar o Módulo 1.**
-> Responda com "ok, próximo" (ou ajuste pedidos) e eu sigo.
