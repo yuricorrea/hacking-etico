@@ -24,7 +24,7 @@ Atacar sistemas sem autorização é crime na maioria das jurisdições (no Bras
 - Metodologia: Cyber Kill Chain + MITRE ATT&CK
 - Como abordar os desafios CTF e os write-ups
 
-### Módulo 0 — Revisão Prática dos Fundamentos
+### [Módulo 0 — Revisão Prática dos Fundamentos](module-0/README.md)
 - 0.1 Setup do ambiente Docker para o curso inteiro
 - 0.2 Revisão prática de Linux (privilégios, processos, networking)
 - 0.3 Revisão prática de redes (TCP/IP, DNS, HTTP, TLS)
