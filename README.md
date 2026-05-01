@@ -4,6 +4,8 @@
 > Autor: Yuri Correa
 > Versão: 1.0 — 2026
 > Idioma: Português (Brasil)
+> **Última verificação de fontes/frameworks:** 1º de maio de 2026
+> **Frameworks-chave referenciados:** OWASP Top 10:2025 (Web), OWASP API Security Top 10:2023, OWASP Top 10 for LLM Applications 2025, OWASP Top 10 for Agentic Applications 2026, MITRE ATT&CK Enterprise, MITRE ATLAS
 
 ---
 
@@ -32,13 +34,13 @@ Atacar sistemas sem autorização é crime na maioria das jurisdições (no Bras
 - 0.5 Revisão prática de criptografia (hashes, simétrica, assimétrica)
 - 0.6 Mini-CTF de aquecimento
 
-### Módulo 1 — Network Hacking & Pivoting
+### [Módulo 1 — Network Hacking & Pivoting](module-1/README.md)
 - Reconhecimento ativo/passivo, scanning avançado com Nmap NSE
 - ARP spoofing, DNS spoofing, NTLM Relay, mitm6
 - Tunneling: SSH, Chisel, Ligolo-ng, Sliver
 - Pivoting multi-hop e port forwarding dinâmico
 
-### Módulo 2 — Web Application Hacking
+### [Módulo 2 — Web Application Hacking](module-2/README.md)
 - OWASP Top 10 (2021) completo com labs próprios
 - API Security (REST, GraphQL, JWT)
 - SSTI, SSRF, Prototype Pollution, Race Conditions
@@ -86,7 +88,7 @@ Atacar sistemas sem autorização é crime na maioria das jurisdições (no Bras
 - Log analysis e timeline
 - EDR evasion + Threat Hunting com Sysmon/Sigma
 
-### Módulo 10 — AI/LLM Security & Red Teaming 🔥 *Nova área*
+### [Módulo 10 — AI/LLM Security & Red Teaming](module-10/README.md) 🔥 *Nova área*
 - Prompt Injection direto e indireto
 - Jailbreaking de LLMs (DAN, role-play, encoding)
 - Prompt Leaking + Data Exfiltration
@@ -179,3 +181,6 @@ Pronto? Bora botar a mão na massa.
 # Módulos do curso
 
 ### [Módulo 0 — Fundamentos](module-0/README.md)
+### [Módulo 1 — Network Hacking & Pivoting](module-1/README.md)
+### [Módulo 2 — Web Application Hacking](module-2/README.md)
+### [Módulo 10 — AI/LLM Security & Red Teaming](module-10/README.md) 🔥

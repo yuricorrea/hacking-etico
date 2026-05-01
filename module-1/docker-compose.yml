@@ -1,0 +1,112 @@
+version: "3.9"
+
+networks:
+  internet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
+  dmz:
+    driver: bridge
+    internal: false
+    ipam:
+      config:
+        - subnet: 10.20.0.0/24
+  lan:
+    driver: bridge
+    internal: true   # sem rota pra fora — só via pivot
+    ipam:
+      config:
+        - subnet: 10.30.0.0/24
+
+services:
+  attacker:
+    image: kalilinux/kali-rolling:latest
+    container_name: attacker
+    hostname: attacker
+    networks:
+      internet:
+        ipv4_address: 10.10.0.10
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+    tty: true
+    stdin_open: true
+    volumes:
+      - ../shared:/shared
+    command: >
+      bash -c "
+      apt update && apt install -y --no-install-recommends
+        nmap masscan dnsutils iputils-ping iproute2
+        responder impacket-scripts mitm6 bettercap
+        proxychains4 ssh chisel hydra
+        python3 python3-pip git curl wget vim tmux
+        smbclient cifs-utils enum4linux netexec
+        wordlists seclists
+      && tail -f /dev/null
+      "
+
+  # Gateway/router entre internet e DMZ (NAT)
+  edge-router:
+    image: alpine:3.19
+    container_name: edge-router
+    hostname: edge-router
+    networks:
+      internet:
+        ipv4_address: 10.10.0.1
+      dmz:
+        ipv4_address: 10.20.0.1
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.ip_forward=1
+    command: >
+      sh -c "
+      apk add --no-cache iptables iproute2 &&
+      iptables -t nat -A POSTROUTING -s 10.20.0.0/24 -o eth0 -j MASQUERADE &&
+      tail -f /dev/null
+      "
+
+  # Web server na DMZ (alvo do foothold inicial); também tem pé na LAN
+  dmz-web:
+    build: ./dmz-web
+    container_name: dmz-web
+    hostname: dmz-web
+    networks:
+      dmz:
+        ipv4_address: 10.20.0.20
+      lan:
+        ipv4_address: 10.30.0.20
+    cap_add:
+      - NET_ADMIN
+
+  # Workstation interna (alvo de NTLM relay) — SMB signing desabilitado
+  lan-workstation:
+    build: ./lan-workstation
+    container_name: lan-workstation
+    hostname: WS01
+    networks:
+      lan:
+        ipv4_address: 10.30.0.50
+    cap_add:
+      - NET_ADMIN
+
+  # "Domain Controller" simulado com Samba (DNS, LDAP, Kerberos)
+  lan-dc:
+    image: instantlinux/samba-dc:latest
+    container_name: lan-dc
+    hostname: DC01
+    networks:
+      lan:
+        ipv4_address: 10.30.0.10
+    environment:
+      DOMAIN: ACME.LOCAL
+      DOMAIN_DC: dc=acme,dc=local
+      DOMAINPASS: Adm1nP@ss!
+      HOSTIP: 10.30.0.10
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN

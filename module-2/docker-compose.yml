@@ -1,0 +1,93 @@
+version: "3.9"
+
+networks:
+  webnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.40.0.0/24
+
+services:
+  attacker:
+    image: kalilinux/kali-rolling:latest
+    container_name: attacker-web
+    hostname: attacker
+    networks:
+      webnet:
+        ipv4_address: 172.40.0.10
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    tty: true
+    stdin_open: true
+    volumes:
+      - ../shared:/shared
+    command: >
+      bash -c "
+      apt update && apt install -y --no-install-recommends
+        ffuf gobuster sqlmap nikto curl wget jq vim tmux
+        python3 python3-pip git ncat
+        hashcat hashid
+        seclists wordlists
+        nodejs npm
+      && pip3 install --break-system-packages pyjwt requests
+      && tail -f /dev/null
+      "
+
+  # Juice Shop — OWASP Top 10 + APIs (alvo principal de OWASP)
+  juice-shop:
+    image: bkimminich/juice-shop:v17
+    container_name: juice-shop
+    hostname: juice-shop
+    networks:
+      webnet:
+        ipv4_address: 172.40.0.20
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      NODE_ENV: unsafe
+
+  # SSTI / SSRF / IDOR app (Flask custom)
+  ssti-app:
+    build: ./ssti-app
+    container_name: ssti-app
+    hostname: ssti-app
+    networks:
+      webnet:
+        ipv4_address: 172.40.0.30
+    ports:
+      - "127.0.0.1:5000:5000"
+
+  # GraphQL API com JWT fraco, BOLA, race condition e SSRF
+  graphql-api:
+    build: ./graphql-api
+    container_name: graphql-api
+    hostname: graphql-api
+    networks:
+      webnet:
+        ipv4_address: 172.40.0.40
+    ports:
+      - "127.0.0.1:4000:4000"
+
+  # HTTP Smuggling lab — frente HAProxy 2.0 + back Node "raw"
+  smuggle-front:
+    build: ./smuggle-lab
+    container_name: smuggle-front
+    hostname: smuggle-front
+    networks:
+      webnet:
+        ipv4_address: 172.40.0.50
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - smuggle-back
+
+  smuggle-back:
+    build:
+      context: ./smuggle-lab
+      dockerfile: backend.Dockerfile
+    container_name: smuggle-back
+    hostname: smuggle-back
+    networks:
+      webnet:
+        ipv4_address: 172.40.0.60

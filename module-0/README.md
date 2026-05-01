@@ -1,6 +1,7 @@
 # 🧱 MÓDULO 0 — Revisão Prática dos Fundamentos
 
 > **Pré-req:** os listados na introdução
+> **Última verificação de versões/ferramentas:** 1º de maio de 2026
 
 ## 🎯 Objetivos de Aprendizado
 
@@ -342,17 +343,19 @@ cat ~/.flag
 
 ## 🧰 Toolbox do Módulo 0
 
-| Ferramenta | Versão testada | Uso |
+| Ferramenta | Versão testada (mai/2026) | Uso |
 |---|---|---|
-| Docker Engine | 24.0+ | Runtime de contêineres |
-| Docker Compose | v2.20+ | Orquestração |
-| Kali (kalilinux/kali-rolling) | 2026.1 | Distro ofensiva |
-| Nmap | 7.94 | Scanning |
+| **Docker Engine** | **v29.0** (mar/2026) — mínimo recomendado: v25.0 | Runtime de contêineres |
+| Docker Compose | v2.30+ | Orquestração |
+| Kali (kalilinux/kali-rolling) | **2026.1** (mar/2026, kernel 6.18) | Distro ofensiva |
+| Nmap | **7.98** (ago/2025) | Scanning |
 | Hydra | 9.5 | Brute force de protocolos |
-| John the Ripper | 1.9.0-jumbo-1 | Cracking de hashes |
-| tcpdump / tshark | 4.99+ | Captura de pacotes |
-| OpenSSL | 3.0+ | Crypto + TLS |
-| Python | 3.11+ | Scripting |
+| John the Ripper | bleeding-jumbo (rolling) | Cracking de hashes |
+| Wireshark / tshark | 4.4+ | Captura de pacotes |
+| OpenSSL | 3.4+ | Crypto + TLS |
+| Python | 3.13 (host) — 3.11+ aceitável | Scripting |
+
+> ⚠️ **Docker v29 quebra compatibilidade com Engine < v25.** Se seu host roda Docker antigo (Engine v24 ou inferior é EOL desde mar/2026), atualize antes de subir os labs. `docker version` confirma.
 
 ---
 

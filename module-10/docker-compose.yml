@@ -1,0 +1,112 @@
+version: "3.9"
+
+networks:
+  ainet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.50.0.0/24
+
+volumes:
+  ollama-models:
+
+services:
+  attacker:
+    image: kalilinux/kali-rolling:latest
+    container_name: attacker-ai
+    hostname: attacker
+    networks:
+      ainet:
+        ipv4_address: 172.50.0.10
+    cap_add:
+      - NET_ADMIN
+    tty: true
+    stdin_open: true
+    volumes:
+      - ../shared:/shared
+    command: >
+      bash -c "
+      apt update && apt install -y --no-install-recommends
+        curl wget jq vim tmux python3 python3-pip git ncat
+      && pip3 install --break-system-packages requests garak promptmap
+      && tail -f /dev/null
+      "
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    hostname: ollama
+    networks:
+      ainet:
+        ipv4_address: 172.50.0.20
+    volumes:
+      - ollama-models:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    # Mantenha modelo em RAM por mais tempo para reduzir latência:
+    environment:
+      OLLAMA_KEEP_ALIVE: 30m
+
+  # One-shot: baixa o modelo e encerra
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ollama-init
+    networks:
+      - ainet
+    depends_on:
+      - ollama
+    entrypoint: ["/bin/sh", "-c"]
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      MODEL: llama3.2:1b
+    command: >
+      "until curl -sf http://ollama:11434/api/tags > /dev/null; do
+         echo 'waiting ollama...'; sleep 2;
+       done;
+       ollama pull $${MODEL} && echo 'model ready'"
+    restart: "no"
+
+  chatbot:
+    build: ./chatbot
+    container_name: chatbot
+    hostname: chatbot
+    networks:
+      ainet:
+        ipv4_address: 172.50.0.30
+    ports:
+      - "127.0.0.1:5300:5000"
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      MODEL: llama3.2:1b
+    depends_on:
+      - ollama
+
+  rag-app:
+    build: ./rag-app
+    container_name: rag-app
+    hostname: rag-app
+    networks:
+      ainet:
+        ipv4_address: 172.50.0.40
+    ports:
+      - "127.0.0.1:5400:5000"
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      MODEL: llama3.2:1b
+    depends_on:
+      - ollama
+
+  agent-app:
+    build: ./agent-app
+    container_name: agent-app
+    hostname: agent-app
+    networks:
+      ainet:
+        ipv4_address: 172.50.0.50
+    ports:
+      - "127.0.0.1:5500:5000"
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      MODEL: llama3.2:1b
+    depends_on:
+      - ollama
