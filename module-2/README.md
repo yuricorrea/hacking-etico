@@ -75,10 +75,11 @@ cd ~/cyber/module-2
 docker compose up -d --build
 
 # Sanidade — abra do host (apenas as portas mapeadas em loopback):
-curl -s http://127.0.0.1:3000/ | head -c 200      # Juice Shop
-curl -s http://127.0.0.1:5000/ | head -c 200      # SSTI app
-curl -s http://127.0.0.1:4000/healthz             # GraphQL API
-curl -s http://127.0.0.1:8080/                    # HAProxy front (smuggle)
+# (escolhemos portas não-triviais para evitar conflito com outros serviços dev)
+curl -s http://127.0.0.1:13371/ | head -c 200     # Juice Shop
+curl -s http://127.0.0.1:13372/ | head -c 200     # SSTI app
+curl -s http://127.0.0.1:13373/healthz            # GraphQL API
+curl -s http://127.0.0.1:13374/                   # HAProxy front (smuggle)
 
 # Entrar no atacante:
 docker exec -it attacker bash

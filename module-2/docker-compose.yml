@@ -36,14 +36,14 @@ services:
 
   # Juice Shop — OWASP Top 10 + APIs (alvo principal de OWASP)
   juice-shop:
-    image: bkimminich/juice-shop:v17
+    image: bkimminich/juice-shop:v17.3.0
     container_name: juice-shop
     hostname: juice-shop
     networks:
       webnet:
         ipv4_address: 172.40.0.20
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:13371:3000"
     environment:
       NODE_ENV: unsafe
 
@@ -56,7 +56,7 @@ services:
       webnet:
         ipv4_address: 172.40.0.30
     ports:
-      - "127.0.0.1:5000:5000"
+      - "127.0.0.1:13372:5000"
 
   # GraphQL API com JWT fraco, BOLA, race condition e SSRF
   graphql-api:
@@ -67,7 +67,7 @@ services:
       webnet:
         ipv4_address: 172.40.0.40
     ports:
-      - "127.0.0.1:4000:4000"
+      - "127.0.0.1:13373:4000"
 
   # HTTP Smuggling lab — frente HAProxy 2.0 + back Node "raw"
   smuggle-front:
@@ -78,7 +78,7 @@ services:
       webnet:
         ipv4_address: 172.40.0.50
     ports:
-      - "127.0.0.1:8080:80"
+      - "127.0.0.1:13374:80"
     depends_on:
       - smuggle-back
 
